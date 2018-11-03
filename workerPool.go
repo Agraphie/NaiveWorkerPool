@@ -81,11 +81,11 @@ func (nwp *NaiveWorkerPool) internalShutdown() {
 	atomic.StoreInt32(&nwp.disposed, 1)
 }
 
-func (nwp *NaiveWorkerPool) IsDisposed() (bool) {
+func (nwp *NaiveWorkerPool) IsDisposed() bool {
 	return atomic.LoadInt32(&nwp.disposed) == 1
 }
 
-func (nwp *NaiveWorkerPool) IsDisposing() (bool) {
+func (nwp *NaiveWorkerPool) IsDisposing() bool {
 	return atomic.LoadInt32(&nwp.disposing) == 1
 }
 
