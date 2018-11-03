@@ -1,6 +1,6 @@
 NaiveWorkerPool
 ==========
-[![Go Report Card](https://goreportcard.com/badge/github.com/Agraphie/NaiveWorkerPool)](https://goreportcard.com/badge/github.com/Agraphie/NaiveWorkerPool)
+[![Go Report Card](https://goreportcard.com/badge/github.com/agraphie/naiveworkerpool)](https://goreportcard.com/report/github.com/agraphie/naiveworkerpool)
 
 Go package for using a simple and dynamically growing worker pool to submit functions to. 
 
