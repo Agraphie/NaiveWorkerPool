@@ -6,7 +6,7 @@ import (
 	"sync/atomic"
 )
 
-// Simple thread safe worker pool
+// WorkerPool is a simple thread safe worker pool
 type WorkerPool interface {
 	Submit(work func())
 	Dispose()
@@ -17,7 +17,7 @@ type WorkerPool interface {
 	unregisterWorker()
 }
 
-// Provides a naive implementation of the worker pool interface
+// NaiveWorkerPool provides a naive implementation of the worker pool interface
 type NaiveWorkerPool struct {
 	initialSize  uint64
 	maxWorker    uint64
@@ -57,7 +57,7 @@ func (nwp *NaiveWorkerPool) Submit(workerFunc func()) {
 	}
 }
 
-// Dispose/shut down the worker pool, but wait for all work to finish
+// Dispose shuts down the worker pool, but waits for all work to finish
 func (nwp *NaiveWorkerPool) Dispose() {
 	if !nwp.IsDisposed() && !nwp.IsDisposing() {
 		nwp.shutdownOnce.Do(nwp.internalShutdown)
@@ -68,12 +68,12 @@ func (nwp *NaiveWorkerPool) Dispose() {
 	}
 }
 
-// Check if the pool has been disposed
+// IsDisposed checks if the pool has been disposed
 func (nwp *NaiveWorkerPool) IsDisposed() bool {
 	return atomic.LoadInt32(&nwp.disposed) == 1
 }
 
-// Check if the pool is currently disposing/shutting down
+//IsDisposing checks if the pool is currently disposing/shutting down
 func (nwp *NaiveWorkerPool) IsDisposing() bool {
 	return atomic.LoadInt32(&nwp.disposing) == 1
 }
