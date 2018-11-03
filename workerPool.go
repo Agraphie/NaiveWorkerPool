@@ -6,6 +6,7 @@ import (
 	"sync/atomic"
 )
 
+// Simple thread safe worker pool
 type WorkerPool interface {
 	Submit(work func())
 	Dispose()
@@ -16,6 +17,7 @@ type WorkerPool interface {
 	unregisterWorker()
 }
 
+// Provides a naive implementation of the worker pool interface
 type NaiveWorkerPool struct {
 	initialSize  uint64
 	maxWorker    uint64
@@ -27,6 +29,7 @@ type NaiveWorkerPool struct {
 	shutdownOnce sync.Once
 }
 
+// Create a naive worker pool with the specified initial and max size
 func Create(initialSize uint64, maxSize uint64) *NaiveWorkerPool {
 	log.Printf("Creating worker pool with size %d and max size %d\n", initialSize, maxSize)
 	nwp := &NaiveWorkerPool{
@@ -42,6 +45,7 @@ func Create(initialSize uint64, maxSize uint64) *NaiveWorkerPool {
 	return nwp
 }
 
+// Submit work to the worker pool. Work will not be submitted if the pool is shutting down or shut down.
 func (nwp *NaiveWorkerPool) Submit(workerFunc func()) {
 	if nwp.IsDisposed() {
 		log.Panicln("Cannot submit work to a pool which has been shut down!")
@@ -53,6 +57,7 @@ func (nwp *NaiveWorkerPool) Submit(workerFunc func()) {
 	}
 }
 
+// Dispose/shut down the worker pool, but wait for all work to finish
 func (nwp *NaiveWorkerPool) Dispose() {
 	if !nwp.IsDisposed() && !nwp.IsDisposing() {
 		nwp.shutdownOnce.Do(nwp.internalShutdown)
@@ -61,6 +66,16 @@ func (nwp *NaiveWorkerPool) Dispose() {
 	} else if nwp.IsDisposing() {
 		log.Println("Worker Pool already shutting down.")
 	}
+}
+
+// Check if the pool has been disposed
+func (nwp *NaiveWorkerPool) IsDisposed() bool {
+	return atomic.LoadInt32(&nwp.disposed) == 1
+}
+
+// Check if the pool is currently disposing/shutting down
+func (nwp *NaiveWorkerPool) IsDisposing() bool {
+	return atomic.LoadInt32(&nwp.disposing) == 1
 }
 
 func (nwp *NaiveWorkerPool) registerWorker() {
@@ -79,14 +94,6 @@ func (nwp *NaiveWorkerPool) internalShutdown() {
 	close(nwp.work)
 	log.Println("Worker pool shut down.")
 	atomic.StoreInt32(&nwp.disposed, 1)
-}
-
-func (nwp *NaiveWorkerPool) IsDisposed() bool {
-	return atomic.LoadInt32(&nwp.disposed) == 1
-}
-
-func (nwp *NaiveWorkerPool) IsDisposing() bool {
-	return atomic.LoadInt32(&nwp.disposing) == 1
 }
 
 func (nwp *NaiveWorkerPool) workQueue() (result *chan func()) {

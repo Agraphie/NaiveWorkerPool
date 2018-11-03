@@ -5,11 +5,13 @@ import (
 	"sync"
 )
 
+// Provide a standard worker interface for the worker pool
 type Worker interface {
 	start(pool WorkerPool)
 	stop(pool WorkerPool)
 }
 
+// A naive implementation of the Worker interface
 type NaiveWorker struct {
 	quitChan     chan bool
 	id           uint64
