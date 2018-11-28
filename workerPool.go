@@ -90,8 +90,8 @@ func (nwp *NaiveWorkerPool) unregisterWorker() {
 func (nwp *NaiveWorkerPool) internalShutdown() {
 	atomic.StoreInt32(&nwp.disposing, 1)
 	log.Println("Shutting down worker pool...")
-	nwp.wg.Wait()
 	close(nwp.work)
+	nwp.wg.Wait()
 	log.Println("Worker pool shut down.")
 	atomic.StoreInt32(&nwp.disposed, 1)
 }
@@ -116,10 +116,8 @@ func (nwp *NaiveWorkerPool) spawnWorker(temp bool) {
 	log.Printf("Spawning worker %d is temp: %t\n", id, temp)
 
 	worker := &NaiveWorker{
-		quitChan:     make(chan bool, 1),
-		temp:         temp,
-		id:           id,
-		shutdownOnce: sync.Once{},
+		temp: temp,
+		id:   id,
 	}
 	worker.start(nwp)
 }
